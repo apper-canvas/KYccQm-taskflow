@@ -1,8 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Clock, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { addTask } from "../store/taskSlice";
+import { createTask } from "../services/taskService";
 
-const MainFeature = ({ onAddTask }) => {
+const MainFeature = () => {
+  const dispatch = useDispatch();
+  
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -54,19 +59,11 @@ const MainFeature = ({ onAddTask }) => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 600));
+      // Create task in Apper database
+      const newTask = await createTask(formData);
       
-      const newTask = {
-        ...formData,
-        id: crypto.randomUUID(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        isCompleted: formData.status === "completed",
-        completedAt: formData.status === "completed" ? new Date().toISOString() : null
-      };
-      
-      onAddTask(newTask);
+      // Add task to Redux store
+      dispatch(addTask(newTask));
       
       // Reset form
       setFormData({
@@ -83,6 +80,7 @@ const MainFeature = ({ onAddTask }) => {
       
     } catch (error) {
       console.error("Error adding task:", error);
+      setErrors({ submit: "Failed to create task. Please try again." });
     } finally {
       setIsSubmitting(false);
     }
@@ -105,6 +103,12 @@ const MainFeature = ({ onAddTask }) => {
       </AnimatePresence>
       
       <form onSubmit={handleSubmit} className={`space-y-4 ${showSuccess ? 'mt-16' : ''}`}>
+        {errors.submit && (
+          <div className="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 p-3 rounded-lg mb-4">
+            {errors.submit}
+          </div>
+        )}
+        
         <div>
           <label htmlFor="title" className="block text-sm font-medium mb-1">
             Task Title <span className="text-red-500">*</span>
