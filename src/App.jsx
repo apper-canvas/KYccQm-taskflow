@@ -1,17 +1,19 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { clearUser } from "./store/userSlice";
 
 function App() {
   const { isAuthenticated, user } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -31,6 +33,13 @@ function App() {
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
+  };
+
+  const handleLogout = () => {
+    // Clear user data from Redux store
+    dispatch(clearUser());
+    // Navigate to login page
+    navigate('/login');
   };
 
   return (
@@ -58,18 +67,28 @@ function App() {
                   Welcome, {user.firstName || user.emailAddress}
                 </div>
               )}
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={toggleDarkMode}
-                className="p-2 rounded-full neumorphic-light dark:neumorphic-dark"
-                aria-label="Toggle dark mode"
-              >
-                {darkMode ? (
-                  <Sun className="w-5 h-5 text-yellow-400" />
-                ) : (
-                  <Moon className="w-5 h-5 text-primary" />
-                )}
-              </motion.button>
+              <div className="flex items-center gap-2">
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={toggleDarkMode}
+                  className="p-2 rounded-full neumorphic-light dark:neumorphic-dark"
+                  aria-label="Toggle dark mode"
+                >
+                  {darkMode ? (
+                    <Sun className="w-5 h-5 text-yellow-400" />
+                  ) : (
+                    <Moon className="w-5 h-5 text-primary" />
+                  )}
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleLogout}
+                  className="p-2 rounded-full neumorphic-light dark:neumorphic-dark"
+                  aria-label="Logout"
+                >
+                  <LogOut className="w-5 h-5 text-red-500" />
+                </motion.button>
+              </div>
             </div>
           </div>
         </header>

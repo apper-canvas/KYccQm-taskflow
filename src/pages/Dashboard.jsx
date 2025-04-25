@@ -11,6 +11,7 @@ import { PlusCircle } from "lucide-react";
 const Dashboard = () => {
   const dispatch = useDispatch();
   const { activeTab, stats, loading, error } = useSelector((state) => state.tasks);
+  const { user } = useSelector((state) => state.user);
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -23,8 +24,11 @@ const Dashboard = () => {
       }
     };
 
-    loadTasks();
-  }, [dispatch]);
+    // Only load tasks if user is authenticated
+    if (user) {
+      loadTasks();
+    }
+  }, [dispatch, user]);
 
   const handleTabChange = (tab) => {
     dispatch(setActiveTab(tab));
